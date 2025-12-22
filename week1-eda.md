@@ -1,4 +1,4 @@
-#Week 1 Learnings: Getting My Hands Dirty with Data
+# Week 1 Learnings: Getting My Hands Dirty with Data
 
 When I started this week, I thought I was just looking at leaf pictures. But after digging into the **PlantVillage** dataset, I realized that "cleaning" the data is where the real work happens. Here is what I did and what I found:
 
