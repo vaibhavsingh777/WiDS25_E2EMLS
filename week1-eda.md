@@ -1,48 +1,52 @@
-# Week 1 Learnings: Getting My Hands Dirty with Data
+# 🌿 Plant Disease Classification: My Week 1 Data Audit
 
-When I started this week, I thought I was just looking at leaf pictures. But after digging into the **PlantVillage** dataset, I realized that "cleaning" the data is where the real work happens. Here is what I did and what I found:
+## 1. The Imbalance Trap
 
-### **1. Tackling the Class Imbalance**
+My first task was quantifying the distribution. I discovered a massive **36:1 imbalance ratio**.
 
-One of the first things I did was plot the distribution of images. I immediately noticed a massive gap: the dataset is heavily skewed toward **Citrus Greening (Orange)**, which has over 5,000 samples, while **Healthy Potatoes** only have about 150.
+* **The Majority**: `Orange___Haunglongbing (Citrus greening)` is a giant with over **5,500 images**.
+* **The Minority**: `Potato___healthy` is a tiny fraction with only **152 images**.
 
-* **Why I care**: I realized that if I don't fix this, my model will just become "lazy" and guess the majority class to get a high score.
-* **My Plan**: For Week 2, I'm going to use data augmentation or weighted loss functions to give those rare classes more "voice".
-
-### **2. The Hunt for Blurry Images**
-
-I didn't want my model learning from "trash," so I ran an OpenCV script to check for blurriness.
-
-* **The Result**: I found 6 images that were significantly out of focus.
-* **The "Human" Test**: When I looked at them, I could barely see the disease spots myself. If I can't see it, I can't expect the AI to learn it. I've flagged these for removal to keep the training set high-quality.
-
-### **3. Understanding Visual Similarity**
-
-I wanted to see if I could distinguish between similar diseases, like the different types of **Tomato Blight**.
-
-* **Observation**: In my sample grid, I noticed that while some leaves are distinct, others look nearly identical in color and texture.
-* **Finding**: My unsupervised clustering confirmed this—certain disease classes overlap almost perfectly in the feature space, meaning the model is going to need a very fine-tuned "eye" to tell them apart.
+**The Learning:** If I just look at raw accuracy, my model could hit 90% by simply ignoring potatoes and raspberries entirely. For next steps, I’ve decided to prioritize **F1-Score** and **Balanced Accuracy** to ensure every plant gets a fair diagnosis.
 
 ---
 
-## 🧬 What exactly is t-SNE?
+## 🔍 2. Scaling the Audit: 11,000+ Image Check
 
-In your "Unsupervised Cluster Map," you used a technique called **t-SNE (t-Distributed Stochastic Neighbor Embedding)**. Here is the plain-English explanation of what happened behind the scenes:
+I didn't just look at 10 images; I scaled my sanity check to **300 samples per class**.
 
-1. **High-Dimensional Chaos**: When we passed your images through the ResNet50 model, it converted each image into a list of **2,048 different numbers** (features). Humans cannot visualize 2,048 dimensions.
-2. **The "Neighbor" Logic**: t-SNE looks at those 2,048 numbers for every image and asks: *"Which images are 'neighbors' because they look similar?"*.
-3. **Squashing the Data**: It then tries to "squash" those 2,048 dimensions down to just **2 dimensions (X and Y)** while trying its best to keep the "neighbors" close together.
-4. **The Map**: The resulting plot is essentially a **Similarity Map**.
-* If points are clustered together, it means the computer thinks those images look very similar in terms of color, shape, and texture.
-* If a cluster is messy or overlapping (like your Apple clusters), it tells us that even a powerful model like ResNet50 has a hard time tellling those specific classes apart.
+* **Hard Issues**: I found **2 critical errors** (corrupt or extreme brightness) that would have crashed a training loop or introduced pure noise.
+* **The "Blurry" Truth**: I flagged **285 images** with a Laplacian variance score below 100.
 
-
-
-### **Patterns I found in the Map:**
-
-* **Consistent Quality**: The dense clusters (like the yellow ones in your plot) show where the images are very consistent in how they were photographed.
-* **Noisy Variation**: The "scattered" points are the outliers—images with weird lighting or unusual leaf positions that didn't fit neatly into a group.
+**The Insight:** I noticed a pattern where **Healthy Corn** images were consistently out of focus (some scores as low as **4.66**). Neptune.ai warns that blurriness kills small-feature detection. Since disease spots are often tiny, these 285 images are "noisy data" that might cause False Negatives later on.
 
 ---
 
-**Would you like me to help you write the specific slide text for your t-SNE results so you can explain this clearly in your 2-minute presentation?**
+## 🧬 3. Decoding Visual Similarity with t-SNE
+
+I used **t-SNE (t-Distributed Stochastic Neighbor Embedding)** to see how a computer actually perceives these leaves.
+
+* **What I did**: I extracted 2,048 features using a pre-trained ResNet50 and squashed them into a 2D map.
+* **What I found**: The map showed that "Healthy" leaves across different species cluster closer together than diseased leaves of the same species.
+* **The Overlap**: I saw significant overlap between `Tomato Late Blight` and `Septoria Leaf Spot`. This "Visual Similarity Trap" confirms that the model will need high-resolution feature maps to tell these apart.
+
+---
+
+## 🖼️ 4. The Gallery: Side-by-Side Consistency
+
+Finally, I created a **10x10 Gallery** to test my own eyes.
+
+* **Consistency**: `Corn Rust` is incredibly uniform; every image looks the same.
+* **Chaos**: `Peach Bacterial Spot` is highly variable—some leaves have tiny specks while others are totally yellowed.
+
+**The Verdict:** My manual gallery check confirmed that my model can't just look for "color"—it needs to understand **texture** and **edge patterns** to be reliable in a real farm environment.
+
+---
+
+## ✅ Week 1 Deliverables
+
+* [x] **Linked Kaggle & GitHub** for version control.
+* [x] **Confirmed 256x256 resolution** (No destructive resizing needed!).
+* [x] **Audited 11,000+ images** for integrity.
+* [x] **Mapped Similarity** via unsupervised t-SNE.
+
