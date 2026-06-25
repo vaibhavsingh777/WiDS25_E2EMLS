@@ -100,3 +100,5 @@ The Simple CNN, starting from random weights, had to simultaneously learn what a
 The classification report from the evaluation cell reveals the CNN model particularly struggled with visually similar classes — for example, Apple Scab vs. Apple Black Rot (both show dark lesions), and healthy vs. mildly diseased leaves where symptoms are subtle. Classes with fewer support samples (like Cedar Apple Rust with only 55 images) showed near-zero precision and recall, suggesting class imbalance is still a challenge going into Week 4.
 
 ---
+
+_Generated from `03_EDA.ipynb` — WiDS Week 3, January 2026_
